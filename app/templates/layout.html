@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+    <head>
+      {% if title %}
+      <title>{{ title }} - Python Learning Platform</title>
+      {% else %}
+      <title>Welcome to the Python Learning Platform</title>
+      {% endif %}
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: 'Segoe UI', Arial, sans-serif;
+          background: #f7f9fa;
+        }
+        .navbar {
+          display: flex;
+          align-items: center;
+          background: #306998;
+          padding: 0 24px;
+          height: 60px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .navbar-logo {
+          height: 38px;
+          width: 38px;
+          margin-right: 16px;
+          object-fit: contain;
+          background: #fff;
+          border-radius: 6px;
+          border: 1px solid #e0e0e0;
+          display: inline-block;
+        }
+        .navbar-title {
+          color: #fff;
+          font-size: 1.5em;
+          font-weight: bold;
+          text-decoration: none;
+          letter-spacing: 0.5px;
+        }
+        main { padding: 32px; max-width: 90vw; margin: 0 auto; }
+      </style>
+    </head>
+    <body>
+      <nav class="navbar">
+        <a href="{{ url_for('index') }}">
+          <img src="{{ url_for('static', filename='python-logo.png') }}" alt="Python Logo" class="navbar-logo" onerror="this.style.display='none'">
+        </a>
+        <a href="{{ url_for('index') }}" class="navbar-title">Python Learning Platform</a>
+      </nav>
+      <main>
+        {% block content %}{% endblock %}
+      </main>
+    </body>
+</html> 

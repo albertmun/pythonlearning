@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <style>
+        h1 { font-size: 2.5em; margin-bottom: 0.2em; }
+        .lesson-list { margin-top: 2em; }
+        .lesson {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fff;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(48,105,152,0.04);
+            transition: box-shadow 0.2s, border 0.2s;
+        }
+        .lesson:hover {
+            box-shadow: 0 4px 16px rgba(48,105,152,0.10);
+            border: 1.5px solid #306998;
+        }
+        .lesson h2 {
+            margin-top: 0;
+            margin-bottom: 0.3em;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+        .lesson p {
+            margin: 0;
+            color: #444;
+            font-size: 1.08em;
+        }
+        a { text-decoration: none; color: inherit; }
+    </style>
+
+    <h1>Hello, Python learner!</h1>
+    <p style="font-size:1.2em; color:#222;">Welcome to your new learning adventure! Here are some lessons to get you started:</p>
+
+    <div class="lesson-list">
+        {% for lesson in lessons %}
+            <a href="{{ url_for('lesson', lesson_id=lesson.id) }}">
+                <div class="lesson">
+                    <h2>{{ lesson.title }}</h2>
+                    <p>{{ lesson.description }}</p>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %} 

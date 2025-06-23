@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f7f9fa; }
+        .lesson-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin-top: 24px;
+        }
+        .lesson-content, .ide-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(48,105,152,0.07);
+            padding: 36px 32px 32px 32px;
+            flex: 1 1 350px;
+            min-width: 320px;
+            max-width: 600px;
+        }
+        .lesson-content {
+            margin-bottom: 24px;
+        }
+        .ide-card {
+            display: flex;
+            flex-direction: column;
+            min-width: 340px;
+        }
+        .editor-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #306998;
+            letter-spacing: 0.5px;
+        }
+        #code-editor {
+            width: 100%;
+            min-height: 180px;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            font-size: 1.13em;
+            border: 1.5px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 18px;
+            background: #f4f7fb;
+            resize: vertical;
+            transition: border 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 2px rgba(48,105,152,0.03);
+        }
+        #code-editor:focus {
+            border: 1.5px solid #306998;
+            outline: none;
+            box-shadow: 0 0 0 2px #30699822;
+            background: #f0f6ff;
+        }
+        #run-btn {
+            background: linear-gradient(90deg, #306998 60%, #4b8bbe 100%);
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 10px 32px;
+            font-size: 1.08em;
+            font-weight: 600;
+            cursor: pointer;
+            align-self: flex-start;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(48,105,152,0.08);
+            letter-spacing: 0.5px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        #run-btn:hover {
+            background: linear-gradient(90deg, #205080 60%, #306998 100%);
+            box-shadow: 0 4px 16px rgba(48,105,152,0.13);
+            transform: translateY(-2px) scale(1.03);
+        }
+        #output-label {
+            font-weight: 600;
+            margin-top: 8px;
+            color: #306998;
+            font-size: 1.08em;
+        }
+        #output-area {
+            width: 100%;
+            min-height: 90px;
+            background: #181c24;
+            color: #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            font-size: 1.08em;
+            margin-top: 6px;
+            white-space: pre-wrap;
+            box-shadow: 0 1px 2px rgba(48,105,152,0.04);
+            overflow-x: auto;
+        }
+        .success-msg {
+            color: #1ca94c;
+            background: #eafbe7;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            margin-top: 0;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.08em;
+        }
+        .success-msg.active {
+            display: flex;
+            animation: popin 0.3s;
+        }
+        @keyframes popin {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @media (max-width: 1100px) {
+            .lesson-container { flex-direction: column; gap: 0; }
+            .lesson-content, .ide-card { max-width: 100%; }
+        }
+    </style>
+
+    <h1 style="font-size:2.2em; margin-bottom:0.2em; color:#222;">{{ lesson.title }}</h1>
+    <div class="lesson-container">
+        <div class="lesson-content">
+            {{ lesson.content|safe }}
+        </div>
+        <div class="ide-card">
+            <div class="editor-label">Python Code Editor</div>
+            <textarea id="code-editor" spellcheck="false" placeholder="# Write your Python code here"></textarea>
+            <button id="run-btn">Run</button>
+            <div id="success-msg" class="success-msg">✅ Success!</div>
+            <div id="output-label">Output:</div>
+            <div id="output-area"></div>
+        </div>
+    </div>
+    <br>
+    <a href="{{ url_for('index') }}" style="color:#306998; font-weight:600; text-decoration:none; font-size:1.1em;">← Back to lessons</a>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const runBtn = document.getElementById('run-btn');
+        const codeEditor = document.getElementById('code-editor');
+        const outputArea = document.getElementById('output-area');
+        const successMsg = document.getElementById('success-msg');
+        const expectedOutput = {{ lesson.expected_output|tojson|safe }};
+
+        function normalizeOutput(str) {
+            return (str || '').replace(/\r/g, '').trim();
+        }
+
+        runBtn.onclick = function() {
+            const code = codeEditor.value;
+            outputArea.textContent = 'Running...';
+            successMsg.classList.remove('active');
+            socket.emit('execute', { code });
+        };
+
+        socket.on('output', function(data) {
+            const userOutput = normalizeOutput(data.output);
+            outputArea.textContent = userOutput;
+            if (expectedOutput && normalizeOutput(expectedOutput) === userOutput) {
+                successMsg.classList.add('active');
+            } else {
+                successMsg.classList.remove('active');
+            }
+        });
+    </script>
+{% endblock %} 
